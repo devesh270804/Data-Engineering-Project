@@ -1,0 +1,63 @@
+{
+    "name": "medallion_pipeline",
+    "properties": {
+        "activities": [
+            {
+                "name": "Run_Silver",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Users/dc27082004@gmail.com/Silver_Layer_Model",
+                    "baseParameters": {
+                        "input_path": "abfss://bronzelayer@adlsstoragedevesh.dfs.core.windows.net/bronze",
+                        "output_path": "abfss://silverlayer@adlsstoragedevesh.dfs.core.windows.net/"
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "AzureDatabricks_LinkedService",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "Run_Gold",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Run_Silver",
+                        "dependencyConditions": [
+                            "Completed"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Users/dc27082004@gmail.com/Gold_Layer_Model",
+                    "baseParameters": {
+                        "silver_path": "abfss://silverlayer@adlsstoragedevesh.dfs.core.windows.net/",
+                        "gold_path": "abfss://goldlayer@adlsstoragedevesh.dfs.core.windows.net/"
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "AzureDatabricks_LinkedService",
+                    "type": "LinkedServiceReference"
+                }
+            }
+        ],
+        "annotations": []
+    }
+}
